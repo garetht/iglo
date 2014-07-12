@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/subosito/iglo"
+	"github.com/garetht/iglo"
 	"log"
 	"net/http"
 	"os"

@@ -1,0 +1,346 @@
+{{ define "Navigation" }}
+  <div class="col-md-3">
+    <nav id="nav" class="hidden-sm hidden-xs affix nav">
+      {{ range . }}
+        {{ $ResourceGroup := . }}
+        <div class="list-group">
+          <a href="{{ .Name | dasherize }}" class="list-group-item heading">
+            {{ .Name }}
+          </a>
+          {{ range .Resources }}
+            <a href="#{{ $ResourceGroup.Name | dasherize }}-{{ .Name | dasherize }}" class="list-group-item">
+              <i class="fa fa-bars"></i>
+              {{ .Name }}
+              {{ $Resource := . }}
+              {{ range .Actions }}
+                <a href="{{ $ResourceGroup.Name | dasherize }}-{{ $Resource.Name | dasherize }}-{{ .Method | dasherize }}" class="list-group-item" style="padding-left: 32px">
+                  {{ .Method | iconize }}
+                  {{ .Name }}
+                </a>
+              {{ end }}
+            </a>
+          {{ end }}
+        </div>
+      {{ end }}
+    </nav>
+  </div>
+{{ end }}
+
+{{ define "RequestResponse" }}
+  <li class="list-group-item">
+    <strong>
+      Request/Response
+      {{ if .Name }}
+        <code>{{ .Name }}</code>
+      {{ end }}
+    </strong>
+    <a data-toggle="collapse" class="pull-right" data-target="#somehash">Toggle</a>
+  </li>
+  <li class="list-group-item panel-collapse collapse" id="somehash">
+    {{ if .Headers }}
+      <div class="description">
+        {{ .Description | markdownize }}
+      </div>
+    {{ end }}
+    <h5>Headers</h5>
+    <pre>
+      <code class="http">{{ range .Headers }}
+        {{ .Name }}: {{ .Value }}{{ end }}</code>
+    </pre>
+    {{ if .Body }}
+    <pre>
+      <code>{{ .Body }}</code>
+    </pre>
+    {{ end }}
+    {{ if .Schema }}
+    <pre>
+      <code>
+        {{ .Schema }}
+      </code>
+    </pre>
+    {{ end }}
+  </li>
+{{ end }}
+
+{{ define "Examples" }}
+  {{ range . }}
+    {{ range .Requests }}
+      {{ template "RequestResponse" . }}
+    {{ end }}
+    {{ range .Responses }}
+      {{ template "RequestResponse" . }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ define "Parameters" }}
+  <ul class="list-group">
+        <li class="list-group-item bg-default">
+          <strong>Parameters</strong>
+        </li>
+        <li class="list-group-item">
+          <dl class="dl-horizontal">
+            {{ range . }}
+              <dt>{{ .Name }}</dt>
+              <dd>
+                <code>{{ .Type }}</code>
+                {{ if .Required }}
+                  <span class="required">(required)</span>
+                {{ else }}
+                  <span>(optional)</span>
+                {{ end }}
+                {{ if .Default }}
+                  <span class="text-info default">
+                    <strong>Default"</strong>
+                    <span>{{ .Default }}</span>
+                  </span>
+                {{ end }}
+                {{ if .Example }}
+                  <span class="text-muted example">
+                    <strong>Example:</strong>
+                    <span>{{ .Example }}</span>
+                  </span>
+                {{ end }}
+                {{ .Description | markdownize }}
+                {{ if .Values }}
+                  <p>
+                    <strong>Choices:</strong>
+                    {{ range .Values }}
+                      <code>{{ . }}</code>
+                    {{ end }}
+                  </p>
+                {{ end }}
+              </dd>
+            {{ end }}
+          </dl>
+        </li>
+  </ul>
+
+{{ end }}
+
+{{ define "Resources" }}
+  {{ $ResourceGroup := . }}
+
+  {{ range .Resources }}
+    <h4 id="{{ $ResourceGroup.Name }}-{{ .Name }}"></h4>
+    {{ $Resource := . }}
+
+    {{ range .Actions }}
+      <section class="panel panel-{{ .Method | labelize }}" id="{{ $ResourceGroup.Name | dasherize }}-{{ $Resource.Name | dasherize }}-{{ .Method | dasherize }}">
+        <div class="panel-heading">
+          {{ if .Name }}
+            <div style="float: right">
+              <span style="text-transform: lowercase">
+                {{ .Name }}
+              </span>
+            </div>
+          {{ end }}
+
+          <div style="float: left">
+            <a href="#{{ $ResourceGroup.Name | dasherize }}-{{ $Resource.Name | dasherize }}-{{ .Method | dasherize }}" class="btn btn-xs btn-{{ .Method | labelize }}">{{ .Method }}</a>
+          </div>
+          <div style="overflow: hidden">
+            {{ $Resource.UriTemplate }}
+          </div>
+        </div>
+
+        {{ if .Description }}
+          <div class="panel-body">
+            {{ .Description | markdownize }}
+          </div>
+        {{ end }}
+
+        {{ if .Parameters }}
+          {{ template "Parameters" .Parameters }}
+        {{ else }}
+          {{ if $Resource.Parameters  }}
+            {{ template "Parameters" $Resource.Parameters }}
+          {{ end }}
+        {{ end }}
+        {{ if .Examples }}
+          {{ template "Examples"  .Examples }}
+        {{ end }}
+
+      </section>
+    {{ end }}
+
+  {{ end }}
+
+{{ end }}
+
+{{ define "ResourceGroups" }}
+  {{ range . }}
+    <div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 id="{{ .Name | markdownize }}">
+            {{ .Name }}
+            <a href="{{ .Name }}">
+              <i class="fa fa-link"></i>
+            </a>
+          </h3>
+        </div>
+
+        <div class="panel-body">
+          {{ .Description | markdownize }}
+          {{ template "Resources" . }}
+        </div>
+      </div>
+    </div>
+  {{ end }}
+{{ end }}
+
+{{ define "Blueprint" }}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{ .Name }}</title>
+  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootswatch/3.1.1/flatly/bootstrap.min.css">
+  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:400,700|Inconsolata|Raleway:200">
+<style>
+pre code{display:block;padding:.5em;color:#333}
+.hljs-comment,.hljs-title{color:#8e908c}.hljs-variable,.hljs-attribute,.hljs-tag,.hljs-regexp,.ruby .hljs-constant,.xml .hljs-tag .hljs-title,.xml .hljs-pi,.xml .hljs-doctype,.html .hljs-doctype,.css .hljs-id,.css .hljs-class,.css .hljs-pseudo{color:#c82829}.hljs-number,.hljs-preprocessor,.hljs-pragma,.hljs-built_in,.hljs-literal,.hljs-params,.hljs-constant{color:#f5871f}.ruby .hljs-class .hljs-title,.css .hljs-rules .hljs-attribute{color:#eab700}.hljs-string,.hljs-value,.hljs-inheritance,.hljs-header,.ruby .hljs-symbol,.xml .hljs-cdata{color:#718c00}.css .hljs-hexcolor{color:#3e999f}.hljs-function,.python .hljs-decorator,.python .hljs-title,.ruby .hljs-function .hljs-title,.ruby .hljs-title .hljs-keyword,.perl .hljs-sub,.javascript .hljs-title,.coffeescript .hljs-title{color:#4271ae}.hljs-keyword,.javascript .hljs-function{color:#8959a8}.hljs{display:block;color:#4d4d4c;padding:.5em}.coffeescript .javascript,.javascript .xml,.tex .hljs-formula,.xml .javascript,.xml .vbscript,.xml .css,.xml .hljs-cdata{opacity:.5}
+
+  body,
+  h4,
+  h5 {
+    font-family: 'Roboto' sans-serif !important;
+  }
+  h1,
+  h2,
+  h3,
+  .aglio {
+    font-family: 'Raleway' sans-serif !important;
+  }
+  h1 a,
+  h2 a,
+  h3 a,
+  h4 a,
+  h5 a {
+    display: none;
+  }
+  h1:hover a,
+  h2:hover a,
+  h3:hover a,
+  h4:hover a,
+  h5:hover a {
+    display: inline;
+  }
+  code {
+    color: #444;
+    background-color: #ddd;
+    font-family: 'Inconsolata' monospace !important;
+  }
+  a[data-target] {
+    cursor: pointer;
+  }
+  h4 {
+    font-size: 100%;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  .back-to-top {
+    position: fixed;
+    z-index: 1;
+    bottom: 0px;
+    right: 24px;
+    padding: 4px 8px;
+    background-color: #eee;
+    text-decoration: none !important;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    border-left: 1px solid rgba(0,0,0,0.1);
+    border-right: 1px solid rgba(0,0,0,0.1);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+  }
+  .panel {
+    overflow: hidden;
+  }
+  .panel-heading code {
+    color: #fff;
+    background-color: transparent;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+  }
+  .panel-heading h3 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  a.list-group-item {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+  a.list-group-item.heading {
+    background-color: #ecf0f1;
+  }
+  .list-group-item.collapse {
+    display: none;
+  }
+  .list-group-item.collapse.in {
+    display: block;
+  }
+  #nav {
+    margin-top: 38px;
+    min-width: 255px;
+    top: 0;
+    bottom: 0;
+    padding-right: 12px;
+    padding-bottom: 12px;
+    overflow-y: auto;
+  }
+  @media (max-width: 1199px) {
+    #nav {
+      min-width: 212px;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <a href="#top" class="text-muted back-to-top">
+    <i class="fa fa-toggle-up">
+      Back to top
+    </i>
+  </a>
+  <div class="container">
+    <div class="row">
+      {{ template "Navigation" .ResourceGroups }}
+      <div class="col-md-9">
+        <header>
+          <div class="page-header">
+            <h1 id="top">
+              {{ .Name }}
+            </h1>
+          </div>
+        </header>
+        <div class="description">
+          {{ .Description | markdownize }}
+        </div>
+        {{ template "ResourceGroups" .ResourceGroups }}
+      </div>
+    </div>
+  </div>
+  <p class="text-muted" style="text-align: center">
+    Generated by Iglo.
+  </p>
+
+
+
+  <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/highlight.min.js"></script>
+  <script>(function() {
+    hljs.initHighlightingOnLoad();
+    $('table').addClass('table');
+
+  }).call(this);
+  </script>
+</body>
+</html>
+{{ end }}

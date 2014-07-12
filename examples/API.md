@@ -1,170 +1,277 @@
-FORMAT: X-1A
-HOST: https://alpha-api.app.net
+FORMAT: 1A
+HOST: https://api.mywebsite.com
 
-# Real World API
-This API Blueprint demonstrates a real world example documenting a portion of [App.net API](http://developers.app.net).
+# API Title
+[Markdown](http://daringfireball.net/projects/markdown/syntax) **formatted** description.
 
-# Group Posts
-This section groups App.net post resources.
+## Subtitle
+Also Markdown *formatted*. This also includes automatic "smartypants" formatting -- hooray!
 
-## Post [/stream/0/posts/{post_id}]
-A Post is the other central object utilized by the App.net Stream API. It has rich text and annotations which comprise all of the content a users sees in their feed. Posts are closely tied to the follow graph...
+> "A quote from another time and place"
 
-+ Parameters
-    + post_id (string, `1`) ... The id of the Post.
+Another paragraph. Code sample:
 
-+ Model (application/json)
+```http
+Authorization: bearer 5262d64b892e8d4341000001
+```
 
-    ```js
-    {
-        "data": {
-            "id": "1", // note this is a string
-            "user": {
-                ...
-            },
-            "created_at": "2012-07-16T17:25:47Z",
-            "text": "@berg FIRST post on this new site #newsocialnetwork",
-            "source": {
-                "client_id": "udxGzAVBdXwGtkHmvswR5MbMEeVnq6n4",
-                "name": "Clientastic for iOS",
-                "link": "http://app.net"
-            },
-            "machine_only": false,
-            "reply_to": null,
-            "thread_id": "1",
-            "num_replies": 3,
-            "num_reposts": 0,
-            "num_stars": 0,
-            "entities": {
-                "mentions": [{
-                    "name": "berg",
-                    "id": "2",
-                    "pos": 0,
-                    "len": 5
-                }],
-                "hashtags": [{
-                    "name": "newsocialnetwork",
-                    "pos": 34,
-                    "len": 17
-                }],
-                "links": [{
-                    "text": "this new site",
-                    "url": "https://join.app.net"
-                    "pos": 20,
-                    "len": 13
-                }]
-            },
-            "you_reposted": false,
-            "you_starred": false
-        },
-        "meta": {
-            "code": 200,
-        }
-    }
-    ```
+And some code with no highlighting:
 
-### Retrieve a Post [GET]
-Returns a specific Post.
+```no-highlight
+Foo bar baz
+```
+
+# Group Notes
+Group description (also with *Markdown*)
+
+## Note List [/notes]
+Note list description
+
++ Even
++ More
++ Markdown
+
++ Model
+
+    + Headers
+
+            Content-Type: application/json
+            X-Request-ID: f72fc914
+            X-Response-Time: 4ms
+
+    + Body
+
+            [
+                {
+                    "id": 1,
+                    "title": "Grocery list",
+                    "body": "Buy milk"
+                },
+                {
+                    "id": 2,
+                    "title": "TODO",
+                    "body": "Fix garage door"
+                }
+            ]
+
+### Get Notes [GET]
+Get a list of notes.
 
 + Response 200
 
-    [Post][]
+    [Note List][]
 
-### Delete a Post [DELETE]
-Delete a Post. The current user must be the same user who created the Post.
-
-+ Response 204
-
-## Posts Collection [/stream/0/posts]
-A Collection of posts.
-
-+ Model (application/json)
-
-    ```js
-    {
-        ["data": {
-            "id": "1", // note this is a string
-            "user": {
-                ...
-            },
-            "created_at": "2012-07-16T17:25:47Z",
-            "text": "@berg FIRST post on this new site #newsocialnetwork",
-            "source": {
-                "client_id": "udxGzAVBdXwGtkHmvswR5MbMEeVnq6n4",
-                "name": "Clientastic for iOS",
-                "link": "http://app.net"
-            },
-            "machine_only": false,
-            "reply_to": null,
-            "thread_id": "1",
-            "num_replies": 3,
-            "num_reposts": 0,
-            "num_stars": 0,
-            "entities": {
-                "mentions": [{
-                    "name": "berg",
-                    "id": "2",
-                    "pos": 0,
-                    "len": 5
-                }],
-                "hashtags": [{
-                    "name": "newsocialnetwork",
-                    "pos": 34,
-                    "len": 17
-                }],
-                "links": [{
-                    "text": "this new site",
-                    "url": "https://join.app.net"
-                    "pos": 20,
-                    "len": 13
-                }]
-            },
-            "you_reposted": false,
-            "you_starred": false
-        },
-        "meta": {
-            "code": 200,
-        }],
-        ...
-    }
-    ```
-
-### Create a Post [POST]
-Create a new Post object. Mentions and hashtags will be parsed out of the post text, as will bare URLs...
+### Create New Note [POST]
+Create a new note
 
 + Request
 
-    [Post][]
+    + Headers
+
+            Content-Type: application/json
+
+    + Body
+
+            {
+                "title": "My new note",
+                "body": "..."
+            }
 
 + Response 201
 
-    [Post][]
++ Response 400
 
-### Retrieve all Posts [GET]
-Retrieves all posts.
+    + Headers
 
-+ Response 200
+            Content-Type: application/json
 
-    [Posts Collection][]
+    + Body
 
-## Stars [/stream/0/posts/{post_id}/star]
-A User’s stars are visible to others, but they are not automatically added to your followers’ streams.
+            {
+                "error": "Invalid title"
+            }
+
+## Note [/notes/{id}]
+Note description
 
 + Parameters
-    + post_id (string, `1`) ... The id of the Post.
 
-### Star a Post [POST]
-Save a given Post to the current User’s stars. This is just a “save” action, not a sharing action.
+    + id (required, string, `68a5sdf67`) ... The note ID
 
-*Note: A repost cannot be starred. Please star the parent Post.*
++ Model
+
+    + Headers
+
+            Content-Type: application/json
+            X-Request-ID: f72fc914
+            X-Response-Time: 4ms
+
+    + Body
+
+            {
+                "id": 1,
+                "title": "Grocery list",
+                "body": "Buy milk"
+            }
+
+### Get Note [GET]
+Get a single note.
 
 + Response 200
 
-    [Post][]
+    [Note][]
 
-### Unstar a Post [DELETE]
-Remove a Star from a Post.
++ Response 404
+
+    + Headers
+
+            Content-Type: application/json
+            X-Request-ID: f72fc914
+            X-Response-Time: 4ms
+
+    + Body
+
+            {
+                "error": "Note not found"
+            }
+
+### Update a Note [PUT]
+Update a single note
+
++ Request
+
+    + Headers
+
+            Content-Type: application/json
+
+    + Body
+
+            {
+                "title": "Grocery List (Safeway)"
+            }
 
 + Response 200
 
-    [Post][]
+    [Note][]
+
++ Response 404
+
+    + Headers
+
+            Content-Type: application/json
+            X-Request-ID: f72fc914
+            X-Response-Time: 4ms
+
+    + Body
+
+            {
+                "error": "Note not found"
+            }
+
+### Delete a Note [DELETE]
+Delete a single note
+
++ Response 204
+
++ Response 404
+
+    + Headers
+
+            Content-Type: application/json
+            X-Request-ID: f72fc914
+            X-Response-Time: 4ms
+
+    + Body
+
+            {
+                "error": "Note not found"
+            }
+
+# Group Users
+Group description
+
+## User List [/users{?name,joinedBefore,joinedAfter,sort,limit}]
+A list of users
+
++ Parameters
+
+    + name (optional, string, `alice`) - Search for a user by name
+    + joinedBefore (optional, string, `2011-01-01`) - Search by join date
+    + joinedAfter (optional, string, `2011-01-01`) - Search by join date
+    + sort = `name` (optional, string, `joined`) - Which field to sort by
+
+        + Values
+            + `name`
+            + `joined`
+            + `-joined`
+
+    + limit = `10` (optional, integer, `25`) - The maximum number of users to return, up to `50`
+
++ Model
+
+    + Headers
+
+            Content-Type: application/json
+
+    + Body
+
+            [
+                {
+                    "name": "alice",
+                    "image": "http://foo.com/alice.jpg",
+                    "joined": "2013-11-01"
+                },
+                {
+                    "name": "bob",
+                    "image": "http://foo.com/bob.jpg",
+                    "joined": "2013-11-02"
+                }
+            ]
+
+    + Schema
+
+            {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "image": {
+                            "type": "string"
+                        },
+                        "joined": {
+                            "type": "string",
+                            "pattern": "12"
+                        }
+                    }
+                }
+            }
+
+### Get users [GET]
+Get a list of users. Example:
+
+```no-highlight
+https://api.mywebsite.com/users?sort=joined&limit=5
+```
+
++ Response 200
+
+    [User List][]
+
+# Group Tags
+Get or set tags on notes
+
+## GET /tags
+Get a list of bars
+
++ Response 200
+
+## Get one tag [/tags/{id}]
+Get a single tag
+
+### GET
+
++ Response 200
