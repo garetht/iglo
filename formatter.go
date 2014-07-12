@@ -4,6 +4,7 @@ import (
 	"bitbucket.org/pkg/inflect"
 	"bytes"
 	"fmt"
+	"github.com/jmcvetta/randutil"
 	bf "github.com/russross/blackfriday"
 	"html/template"
 	"io"
@@ -57,6 +58,7 @@ func HTML(w io.Writer, api *API, templatePaths []string) error {
 		"labelize":    labelize,
 		"markdownize": markdownize,
 		"iconize":     iconize,
+		"randstr":     randutil.AlphaString,
 	}
 	tmpl, err := template.New("html").Funcs(funcMap).ParseFiles(templatePaths...)
 

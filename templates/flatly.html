@@ -42,32 +42,36 @@
         <code>{{ .Name }}</code>
       {{ end }}
     </strong>
-    <a data-toggle="collapse" class="pull-right" data-target="#somehash">Toggle</a>
-  </li>
-  <li class="list-group-item panel-collapse collapse" id="somehash">
-    {{ if .Headers }}
-      <div class="description">
-        {{ .Description | markdownize }}
-      </div>
-    {{ end }}
-    <h5>Headers</h5>
-    <pre>
-      <code class="http">{{ range .Headers }}
-        {{ .Name }}: {{ .Value }}{{ end }}</code>
-    </pre>
-    {{ if .Body }}
-    <pre>
-      <code>{{ .Body }}</code>
-    </pre>
-    {{ end }}
-    {{ if .Schema }}
-    <pre>
-      <code>
-        {{ .Schema }}
-      </code>
-    </pre>
+    {{ $rstring := randstr 32 }}
+    {{ if or (or .Headers .Body) .Schema }}
+      <a data-toggle="collapse" class="pull-right" data-target="#{{ $rstring }}">Toggle</a>
     {{ end }}
   </li>
+  {{ if or (or .Headers .Body) .Schema }}
+    <li class="list-group-item panel-collapse collapse" id="{{ $rstring }}">
+      {{ if .Headers }}
+        <div class="description">
+          {{ .Description | markdownize }}
+        </div>
+      {{ end }}
+      <h5>Headers</h5>
+      <pre>
+        <code>{{ range .Headers }}{{ .Name }}: {{ .Value }}
+{{ end }}</code>
+      </pre>
+      <h5>Model</h5>
+      {{ if .Body }}
+      <pre>
+        <code>{{ .Body }}</code>
+      </pre>
+      {{ end }}
+      {{ if .Schema }}
+      <pre>
+        <code>{{ .Schema }}</code>
+      </pre>
+      {{ end }}
+    </li>
+  {{ end }}
 {{ end }}
 
 {{ define "Examples" }}
@@ -148,7 +152,7 @@
             <a href="#{{ $ResourceGroup.Name | dasherize }}-{{ $Resource.Name | dasherize }}-{{ .Method }}" class="btn btn-xs btn-{{ .Method | labelize }}">{{ .Method }}</a>
           </div>
           <div style="overflow: hidden">
-            {{ $Resource.UriTemplate }}
+            <code>{{ $Resource.UriTemplate }}</code>
           </div>
         </div>
 
@@ -171,9 +175,7 @@
 
       </section>
     {{ end }}
-
   {{ end }}
-
 {{ end }}
 
 {{ define "ResourceGroups" }}
@@ -343,7 +345,6 @@ pre code{display:block;padding:.5em;color:#333}
   <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/highlight.min.js"></script>
   <script>(function() {
     hljs.initHighlightingOnLoad();
-    $('table').addClass('table');
 
   }).call(this);
   </script>
