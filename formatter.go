@@ -13,11 +13,11 @@ import (
 func labelize(method string) string {
 	switch method {
 	case "GET":
-		return "primary"
+		return "info"
 	case "POST":
 		return "success"
 	case "PUT":
-		return "info"
+		return "primary"
 	case "PATCH":
 		return "warning"
 	case "DELETE":
@@ -30,15 +30,15 @@ func labelize(method string) string {
 func iconize(method string) string {
 	switch method {
 	case "GET":
-		return "<i class='fa fa-arrow-circle-down'>"
+		return "arrow-circle-down"
 	case "POST":
-		return "<i class='fa fa-plus-square'>"
+		return "plus-square"
 	case "PUT":
-		return "<i class='fa fa-pencil'>"
+		return "pencil"
 	case "PATCH":
-		return "<i class='fa fa-warning'>"
+		return "warning"
 	case "DELETE":
-		return "<i class='fa fa-dot-circle-o'>"
+		return "dot-circle-o"
 	}
 
 	return "default"
